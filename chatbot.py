@@ -7,6 +7,18 @@ from symptom_checker import analyze_symptoms
 from follow_up import generate_follow_up_questions
 from intent_detector import detect_intent
 from conversation_manager import get_missing_information
+from patient_memory import (
+    get_memory,
+    update_memory,
+    clear_memory
+)
+
+from conversation_state import (
+    get_waiting,
+    set_waiting,
+    clear_waiting
+)
+
 
 conversation_history = []
 
@@ -39,6 +51,19 @@ def get_response(conversation):
     # Detect Intent
     # ----------------------------
     intent = detect_intent(latest_message)
+    waiting = get_waiting()
+
+    if waiting == "age":
+
+       update_memory({
+        "age": latest_message
+    })
+
+       clear_waiting()
+
+       return (
+         f"Thank you. I have recorded your age as {latest_message}."
+    )
 
     # ----------------------------
     # Greeting
@@ -111,6 +136,9 @@ def get_response(conversation):
             questions.append(
                 "Would you describe them as mild, moderate, or severe?"
             )
+        if "age" in missing:
+           set_waiting("age")
+           questions.append("How old are you?")
 
         return (
             "I need a little more information before I can provide general health guidance.\n\n"

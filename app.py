@@ -2,6 +2,7 @@ import streamlit as st
 
 from chatbot import get_response
 from emergency import is_emergency
+import traceback
 
 
 # -----------------------------
@@ -150,11 +151,9 @@ Please contact your local emergency services or visit the nearest hospital immed
                 )
 
 
-            except Exception as e:
-
-                st.error(f"Error: {e}")
-
-
+            except Exception:
+             st.exception(Exception)
+             traceback.print_exc()
 
 # -----------------------------
 # Sidebar
