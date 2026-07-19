@@ -8,37 +8,78 @@ from emergency import is_emergency
 # Page Configuration
 # -----------------------------
 st.set_page_config(
-    page_title="AI Healthcare Assistant",
+    page_title="AI Symptom Checking Chatbot",
     page_icon="🩺",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
+st.markdown("""
+<style>
+
+/* Main App Background */
+.stApp {
+    background-color: #F5F9FC;
+}
+
+/* Main Title */
+h1 {
+    color: red;
+    font-size: 50px;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #EAF4FF;
+}
+
+/* Buttons */
+.stButton > button {
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+/* Chat Input */
+[data-testid="stChatInput"] {
+    border-radius: 12px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # -----------------------------
 # Title
 # -----------------------------
-st.title("🩺 AI Healthcare Assistant")
+st.title("🩺 AI Symptom Checking Chatbot")
 
-st.caption(
-    "Educational healthcare information powered by Gemini."
-)
+st.markdown("""
+### Your Intelligent Healthcare Companion
 
+Describe your symptoms, and I'll ask follow-up questions to better understand your condition and provide **educational health guidance**.
+
+> ⚠️ **Disclaimer:** This chatbot does **not** diagnose diseases or replace professional medical advice.
+""")
 # -----------------------------
 # Initialize Chat History
 # -----------------------------
 if "messages" not in st.session_state:
 
     st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": (
-                "👋 Hello! I'm your AI Healthcare Assistant.\n\n"
-                "I can help explain symptoms, health topics, "
-                "nutrition, and general healthcare information.\n\n"
-                "How can I help you today?"
-            )
-        }
-    ]
-    # -----------------------------
+       
+  {
+    "role": "assistant",
+    "content": (
+        "👋 **Welcome to the AI Symptom Checking Chatbot!**\n\n"
+        "I'm here to help you understand your symptoms through an interactive conversation.\n\n"
+        "**I can help you with:**\n"
+        "• 🤒 Symptom assessment\n"
+        "• ❓ Follow-up questions\n"
+        "• 🚨 Emergency symptom detection\n"
+        "• 📚 Educational health information\n\n"
+        "**To get started, simply describe how you're feeling.**\n\n"
+        "*Example:* `I have a fever and sore throat for the past 2 days.`"
+    )
+}
+       ]   # -----------------------------
 # Display Previous Messages
 # -----------------------------
 for message in st.session_state.messages:
@@ -77,7 +118,11 @@ if prompt := st.chat_input("Describe your symptoms..."):
         )
 
         with st.chat_message("assistant"):
-            st.warning(warning_message)
+            st.error("🚨 Possible Medical Emergency Detected")
+
+            st.warning(
+                "Please seek immediate medical attention or contact emergency services.")
+
 
         st.session_state.messages.append(
             {
@@ -110,7 +155,7 @@ if prompt := st.chat_input("Describe your symptoms..."):
     # -----------------------------
     with st.chat_message("assistant"):
 
-        with st.spinner("🧠 Thinking..."):
+        with st.spinner("🩺 Reviewing your health information..."):
 
             try:
 
@@ -131,33 +176,61 @@ if prompt := st.chat_input("Describe your symptoms..."):
 
                 st.error(f"Error: {e}")
 
-                # -----------------------------
+# -----------------------------
 # Sidebar
 # -----------------------------
 with st.sidebar:
 
-    st.header("🩺 Healthcare Assistant")
+    st.title("🩺 AI Symptom Checker")
 
-    st.write(
+    st.success("🟢 System Status: Online")
+
+    st.markdown("---")
+
+    st.subheader("✨ Features")
+
+    st.markdown("""
+✅ Symptom Analysis
+
+✅ Emergency Detection
+
+✅ Follow-up Questions
+
+✅ Patient Memory
+""")
+
+    st.markdown("---")
+
+    st.subheader("⚠ Disclaimer")
+
+    st.info(
         """
-This chatbot provides educational healthcare information only.
+This chatbot provides **educational healthcare information only**.
 
-It cannot diagnose diseases or replace professional medical advice.
+It **does not diagnose diseases** or replace professional medical advice.
+
+If you are experiencing severe symptoms,
+please contact emergency medical services.
 """
     )
 
     st.markdown("---")
 
-    if st.button("🗑️ Clear Chat", use_container_width=True):
+    if st.button("🗑 Clear Conversation", use_container_width=True):
 
         st.session_state.messages = [
             {
                 "role": "assistant",
                 "content": (
-                    "👋 Hello! I'm your AI Healthcare Assistant.\n\n"
-                    "How can I help you today?"
+                    "👋 **Welcome to the AI Symptom Checking Chatbot!**\n\n"
+                    "Describe your symptoms to begin."
                 )
             }
         ]
 
         st.rerun()
+        st.markdown("---")
+
+st.caption(
+    "🩺 AI Symptom Checking Chatbot | Built with Streamlit & Google Gemini | Version 1.0"
+)
