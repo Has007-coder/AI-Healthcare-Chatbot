@@ -1,9 +1,8 @@
+import traceback
 import streamlit as st
 
 from chatbot import get_response
 from emergency import is_emergency
-import traceback
-
 
 # -----------------------------
 # Page Configuration
@@ -14,7 +13,6 @@ st.set_page_config(
     layout="centered"
 )
 
-
 # -----------------------------
 # Title
 # -----------------------------
@@ -23,7 +21,6 @@ st.title("🩺 AI Healthcare Assistant")
 st.caption(
     "Educational healthcare information powered by Gemini."
 )
-
 
 # -----------------------------
 # Initialize Chat History
@@ -41,15 +38,12 @@ if "messages" not in st.session_state:
             )
         }
     ]
-
-
-# -----------------------------
+    # -----------------------------
 # Display Previous Messages
 # -----------------------------
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
-
         st.markdown(message["content"])
 
 
@@ -57,7 +51,6 @@ for message in st.session_state.messages:
 # Chat Input
 # -----------------------------
 if prompt := st.chat_input("Describe your symptoms..."):
-
 
     # Save User Message
     st.session_state.messages.append(
@@ -67,33 +60,24 @@ if prompt := st.chat_input("Describe your symptoms..."):
         }
     )
 
-
     # Display User Message
     with st.chat_message("user"):
-
         st.markdown(prompt)
-
-
 
     # -----------------------------
     # Emergency Detection
     # -----------------------------
     if is_emergency(prompt):
 
-        warning_message = """
-🚨 **Possible Medical Emergency Detected**
-
-Your symptoms may require immediate medical attention.
-
-Please contact your local emergency services or visit the nearest hospital immediately.
-
-⚠️ This AI assistant cannot evaluate emergency situations.
-"""
+        warning_message = (
+            "🚨 **Possible Medical Emergency Detected**\n\n"
+            "Your symptoms may require immediate medical attention.\n\n"
+            "Please contact your local emergency services or visit the nearest hospital immediately.\n\n"
+            "⚠️ This AI assistant cannot evaluate emergency situations."
+        )
 
         with st.chat_message("assistant"):
-
             st.warning(warning_message)
-
 
         st.session_state.messages.append(
             {
@@ -102,16 +86,12 @@ Please contact your local emergency services or visit the nearest hospital immed
             }
         )
 
-
         st.stop()
-
-
 
     # -----------------------------
     # Build Conversation History
     # -----------------------------
     conversation = []
-
 
     for msg in st.session_state.messages:
 
@@ -125,10 +105,7 @@ Please contact your local emergency services or visit the nearest hospital immed
                 ]
             }
         )
-
-
-
-    # -----------------------------
+            # -----------------------------
     # AI Response
     # -----------------------------
     with st.chat_message("assistant"):
@@ -139,9 +116,7 @@ Please contact your local emergency services or visit the nearest hospital immed
 
                 answer = get_response(conversation)
 
-
                 st.markdown(answer)
-
 
                 st.session_state.messages.append(
                     {
@@ -150,18 +125,18 @@ Please contact your local emergency services or visit the nearest hospital immed
                     }
                 )
 
+            except Exception as e:
 
-            except Exception:
-             st.exception(Exception)
-             traceback.print_exc()
+                traceback.print_exc()
 
-# -----------------------------
+                st.error(f"Error: {e}")
+
+                # -----------------------------
 # Sidebar
 # -----------------------------
 with st.sidebar:
 
     st.header("🩺 Healthcare Assistant")
-
 
     st.write(
         """
@@ -171,9 +146,7 @@ It cannot diagnose diseases or replace professional medical advice.
 """
     )
 
-
     st.markdown("---")
-
 
     if st.button("🗑️ Clear Chat", use_container_width=True):
 
@@ -181,7 +154,7 @@ It cannot diagnose diseases or replace professional medical advice.
             {
                 "role": "assistant",
                 "content": (
-                    "👋 Hello! I'm your AI Healthcare Assistant. "
+                    "👋 Hello! I'm your AI Healthcare Assistant.\n\n"
                     "How can I help you today?"
                 )
             }

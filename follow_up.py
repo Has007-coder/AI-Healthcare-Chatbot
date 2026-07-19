@@ -1,25 +1,36 @@
-def generate_follow_up_questions(symptom_data):
+"""
+Generates follow-up questions based on missing patient information.
+"""
 
-    questions = []
 
-    if not symptom_data.get("duration"):
-        questions.append(
+def generate_follow_up_questions(missing_field):
+    """
+    Returns a follow-up question for the missing field.
+    """
+
+    questions = {
+        "symptoms": (
+            "Could you please describe your symptoms in more detail?"
+        ),
+
+        "duration": (
             "How long have you been experiencing these symptoms?"
-        )
+        ),
 
-    if not symptom_data.get("severity"):
-        questions.append(
-            "How severe are your symptoms (mild, moderate, or severe)?"
-        )
+        "severity": (
+            "How severe are your symptoms? (Mild, Moderate, or Severe)"
+        ),
 
-    if not symptom_data.get("age"):
-        questions.append(
-            "Could you tell me your age?"
-        )
+        "age": (
+            "May I know your age?"
+        ),
 
-    if not symptom_data.get("symptoms"):
-        questions.append(
-            "Could you describe your symptoms in more detail?"
+        "gender": (
+            "What is your gender?"
         )
+    }
 
-    return questions
+    return questions.get(
+        missing_field,
+        "Could you provide more information?"
+    )

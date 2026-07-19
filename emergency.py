@@ -1,34 +1,32 @@
-# emergency.py
+"""
+Emergency symptom detection.
+"""
 
 EMERGENCY_KEYWORDS = [
     "chest pain",
     "difficulty breathing",
     "can't breathe",
     "cannot breathe",
-    "shortness of breath",
-    "stroke",
     "heart attack",
+    "stroke",
     "seizure",
     "unconscious",
-    "fainted",
     "heavy bleeding",
-    "severe bleeding",
     "vomiting blood",
     "coughing blood",
     "loss of consciousness"
 ]
 
 
-def is_emergency(user_message):
+def is_emergency(message):
     """
-    Returns True if the user's message contains
-    emergency-related keywords.
+    Returns True if the message contains emergency symptoms.
     """
 
-    message = user_message.lower()
+    text = message.lower()
 
     for keyword in EMERGENCY_KEYWORDS:
-        if keyword in message:
+        if keyword in text:
             return True
 
     return False

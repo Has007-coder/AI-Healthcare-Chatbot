@@ -1,13 +1,33 @@
-def get_missing_information(symptom_analysis):
+"""
+Checks what patient information is still missing.
+"""
+
+
+def get_missing_information(memory):
+    """
+    Returns a list of missing patient information.
+    """
+
     missing = []
 
-    if not symptom_analysis["symptoms"]:
+    # Symptoms
+    if not memory.get("symptoms"):
         missing.append("symptoms")
 
-    if not symptom_analysis["duration"]:
+    # Duration
+    if not memory.get("duration"):
         missing.append("duration")
 
-    if not symptom_analysis["severity"]:
+    # Severity
+    if not memory.get("severity"):
         missing.append("severity")
+
+    # Age
+    if not memory.get("age"):
+        missing.append("age")
+
+    # Gender (optional)
+    if not memory.get("gender"):
+        missing.append("gender")
 
     return missing

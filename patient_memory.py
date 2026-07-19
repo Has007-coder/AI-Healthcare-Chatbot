@@ -1,4 +1,6 @@
-# Stores information collected during the conversation
+"""
+Stores patient information collected during the conversation.
+"""
 
 patient_memory = {
     "symptoms": [],
@@ -10,30 +12,47 @@ patient_memory = {
 
 
 def get_memory():
-    """Return the current patient information."""
+    """Return the current patient memory."""
     return patient_memory
 
 
 def update_memory(new_data):
     """
-    Update memory with newly extracted information.
-    Only overwrite fields if new information is available.
+    Update patient memory with a dictionary.
+    Example:
+    update_memory({"age": "18"})
+    update_memory({"symptoms": ["fever"]})
     """
 
-    if new_data.get("symptoms"):
-        for symptom in new_data["symptoms"]:
-            if symptom not in patient_memory["symptoms"]:
-                patient_memory["symptoms"].append(symptom)
+    if not isinstance(new_data, dict):
+        return
 
-    for key in ["duration", "severity", "age", "gender"]:
-        value = new_data.get(key)
+    # Update symptoms
+    if "symptoms" in new_data:
+        symptoms = new_data["symptoms"]
 
-        if value not in [None, "", "Unknown"]:
-            patient_memory[key] = value
+        if isinstance(symptoms, list):
+            for symptom in symptoms:
+                if symptom not in patient_memory["symptoms"]:
+                    patient_memory["symptoms"].append(symptom)
+
+        elif isinstance(symptoms, str):
+            if symptoms not in patient_memory["symptoms"]:
+                patient_memory["symptoms"].append(symptoms)
+
+    # Update remaining fields
+    for field in ["duration", "severity", "age", "gender"]:
+
+        if field in new_data:
+
+            value = new_data[field]
+
+            if value not in [None, "", "Unknown"]:
+                patient_memory[field] = value
 
 
 def clear_memory():
-    """Reset memory for a new conversation."""
+    """Reset patient memory."""
 
     patient_memory["symptoms"] = []
     patient_memory["duration"] = None
