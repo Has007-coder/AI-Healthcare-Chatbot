@@ -1,0 +1,83 @@
+/* ===========================
+   APP BACKGROUND
+=========================== */
+
+.stApp {
+    background: #F5F9FC;
+}
+
+/* ===========================
+   HERO HEADER
+=========================== */
+
+.hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    background: white;
+    padding: 24px;
+
+    border-radius: 18px;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+
+    margin-bottom: 20px;
+}
+
+.hero-icon{
+    font-size:48px;
+}
+
+.hero h1{
+    margin:0;
+    color:#1565C0;
+    font-size:34px;
+}
+
+.hero p{
+    margin-top:6px;
+    color:#6B7280;
+    font-size:16px;
+}
+/* ===========================
+   PATIENT SUMMARY
+=========================== */
+
+.summary-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+    margin-top:15px;
+
+}
+
+.summary-card h3{
+
+    color:#1565C0;
+
+    margin-bottom:15px;
+
+}
+
+.summary-item{
+
+    background:#F8FAFC;
+
+    border-left:5px solid #1565C0;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    margin-bottom:10px;
+
+    font-size:15px;
+
+}

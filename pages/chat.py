@@ -1,299 +1,142 @@
-# -----------------------------
-# Initialize Chat History
-# -----------------------------
-if "messages" not in st.session_state:
+import traceback
+import streamlit as st
 
-    st.session_state.messages = [
-       
-  {
-    "role": "assistant",
-    "content": (
-        "👋 **Welcome to the AI Symptom Checking Chatbot!**\n\n"
-        "I'm here to help you understand your symptoms through an interactive conversation.\n\n"
-        "**I can help you with:**\n"
-        "• 🤒 Symptom assessment\n"
-        "• ❓ Follow-up questions\n"
-        "• 🚨 Emergency symptom detection\n"
-        "• 📚 Educational health information\n\n"
-        "**To get started, simply describe how you're feeling.**\n\n"
-        "*Example:* `I have a fever and sore throat for the past 2 days.`"
-    )
-}
-       ]   # -----------------------------
-# Display Previous Messages
-# -----------------------------
-for message in st.session_state.messages:
+from chatbot import get_response
+from emergency import is_emergency
+from response_formatter import format_response
 
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+from components.styles import load_css
+
+from conversation_history import (
+    initialize_history,
+    get_current_conversation,
+    save_messages,
+)
 
 
-# -----------------------------
-# Chat Input
-# -----------------------------
-if prompt := st.chat_input("Describe your symptoms..."):
+# -----------------------------------------
+# Display Chat Messages
+# -----------------------------------------
+def display_messages():
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-    # Save User Message
-    st.session_state.messages.append(
-        {
-            "role": "user",
-            "content": prompt
-        }
-    )
 
-    # Display User Message
-    with st.chat_message(
-    "user",
-    avatar="👤"
-):
-        st.markdown(prompt)
+# -----------------------------------------
+# Generate AI Response
+# -----------------------------------------
+def generate_ai_response(prompt):
 
-    # -----------------------------
     # Emergency Detection
-    # -----------------------------
     if is_emergency(prompt):
 
-        warning_message = (
+        warning = (
             "🚨 **Possible Medical Emergency Detected**\n\n"
-            "Your symptoms may require immediate medical attention.\n\n"
-            "Please contact your local emergency services or visit the nearest hospital immediately.\n\n"
-            "⚠️ This AI assistant cannot evaluate emergency situations."
+            "Please seek immediate medical attention immediately."
         )
-
-        with st.chat_message("assistant"):
-            st.error("🚨 Possible Medical Emergency Detected")
-
-            st.warning(
-                "Please seek immediate medical attention or contact emergency services.")
-
 
         st.session_state.messages.append(
             {
                 "role": "assistant",
-                "content": warning_message
+                "content": warning,
             }
         )
 
-        st.stop()
+        save_messages(st.session_state.messages)
+        st.rerun()
 
-    # -----------------------------
-    # Build Conversation History
-    # -----------------------------
-    conversation = []
+    history = []
 
     for msg in st.session_state.messages:
-
-        conversation.append(
+        history.append(
             {
                 "role": msg["role"],
                 "parts": [
                     {
                         "text": msg["content"]
                     }
-                ]
+                ],
             }
         )
-            # -----------------------------
-    # AI Response
-    # -----------------------------
-    with st.chat_message("assistant"):
+
+    try:
 
         with st.spinner("🧠 Analyzing symptoms..."):
+            raw_response = get_response(history)
 
-            try:
+        answer = format_response(raw_response)
 
-                raw_answer = get_response(conversation)
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": answer,
+            }
+        )
 
-                answer = format_response(raw_answer)
+        save_messages(st.session_state.messages)
+        st.rerun()
 
-                st.markdown(answer)
+    except Exception as e:
 
-                st.session_state.messages.append(
-                    {
-                        "role": "assistant",
-                        "content": answer
-                    }
-                )
+        traceback.print_exc()
 
-            except Exception as e:
+        st.session_state.messages.append(
+            {
+                "role": "assistant",
+                "content": f"❌ Error: {e}",
+            }
+        )
 
-                traceback.print_exc()
-
-                st.error(f"Error: {e}")
-
-                if "health_report" in st.session_state:
-
-
-                 st.markdown("---")
-                 st.subheader("📄 AI Health Report")
-
-                 st.markdown(st.session_state["health_report"])
+        save_messages(st.session_state.messages)
+        st.rerun()
 
 
-# -----------------------------
-# Sidebar
-# -----------------------------
-with st.sidebar:
+# -----------------------------------------
+# Handle User Input
+# -----------------------------------------
+def handle_user_input():
 
-    # =============================
-    # App Title
-    # =============================
-    st.title("🩺 AI Symptom Checker")
+    prompt = st.chat_input("Describe your symptoms...")
 
-    st.success("🟢 System Status: Online")
+    if not prompt:
+        return
 
-    st.markdown("---")
-
-    # =============================
-    # Patient Summary
-    # =============================
-    st.subheader("🧾 Patient Summary")
-
-    memory = get_memory()
-
-    with st.container(border=True):
-
-        # Symptoms
-        st.markdown("### 🤒 Symptoms")
-
-        if memory["symptoms"]:
-            for symptom in memory["symptoms"]:
-                st.write(f"• {symptom}")
-        else:
-            st.caption("No symptoms recorded")
-
-        st.divider()
-
-        # Duration
-        st.markdown("### 📅 Duration")
-
-        if memory["duration"]:
-            st.success(memory["duration"])
-        else:
-            st.info("Waiting for information")
-
-        # Severity
-        st.markdown("### 📈 Severity")
-
-        if memory["severity"]:
-            st.success(memory["severity"])
-        else:
-            st.info("Waiting for information")
-
-        # Age
-        st.markdown("### 🎂 Age")
-
-        if memory["age"]:
-            st.success(memory["age"])
-        else:
-            st.info("Waiting for information")
-
-        # Gender
-        st.markdown("### ⚧ Gender")
-
-        if memory["gender"]:
-            st.success(memory["gender"])
-        else:
-            st.info("Waiting for information")
-
-    st.markdown("---")
-
-    # =============================
-    # Progress Bar
-    # =============================
-    completed = 0
-
-    if memory["symptoms"]:
-        completed += 1
-
-    if memory["duration"]:
-        completed += 1
-
-    if memory["severity"]:
-        completed += 1
-
-    if memory["age"]:
-        completed += 1
-
-    if memory["gender"]:
-        completed += 1
-
-    progress = completed / 5
-
-    st.subheader("📊 Information Collected")
-
-    st.progress(progress)
-
-    st.caption(f"{completed}/5 details collected")
-
-    st.markdown("---")
-
-    # =============================
-    # Features
-    # =============================
-    st.subheader("✨ Features")
-
-    st.markdown("""
-✅ Symptom Analysis
-
-✅ Follow-up Questions
-
-✅ Emergency Detection
-
-✅ Patient Memory
-""")
-
-    st.markdown("---")
-
-    # =============================
-    # Disclaimer
-    # =============================
-    st.subheader("⚠ Disclaimer")
-
-    st.info(
-        """
-This chatbot provides educational healthcare information only.
-
-It does not diagnose diseases or replace professional medical advice.
-
-If your symptoms are severe,
-please seek immediate medical care.
-"""
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": prompt,
+        }
     )
 
-    st.markdown("---")
-    st.markdown("---")
+    save_messages(st.session_state.messages)
 
-if st.button("📄 Generate Health Report", use_container_width=True):
+    generate_ai_response(prompt)
 
-    report = generate_report()
 
-    st.session_state["health_report"] = report
+# -----------------------------------------
+# Main Chat Page
+# -----------------------------------------
+def show_chat():
 
-    # =============================
-    # Clear Conversation
-    # =============================
-    if st.button("🗑 Clear Conversation", use_container_width=True):
+    initialize_history()
+    load_css()
 
-        clear_memory()
+    conversation = get_current_conversation()
 
-        st.session_state.messages = [
+    if not conversation["messages"]:
+        conversation["messages"] = [
             {
                 "role": "assistant",
                 "content": (
-                    "👋 **Welcome to the AI Symptom Checking Chatbot!**\n\n"
-                    "Describe your symptoms to begin."
-                )
+                    "👋 Hello! I'm your AI Healthcare Assistant.\n\n"
+                    "How can I help you today?"
+                ),
             }
         ]
 
-        st.rerun()
+    st.session_state.messages = conversation["messages"]
 
-    st.markdown("---")
+    display_messages()
 
-    # Footer
-    st.caption(
-        "🩺 AI Symptom Checking Chatbot\n"
-        "Built with Streamlit & Google Gemini\n"
-        "Version 1.0"
-    )
+    handle_user_input()

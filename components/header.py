@@ -1,14 +1,12 @@
 import streamlit as st
 
-
 def show_header():
-
-    st.title("🩺 AI Symptom Checking Chatbot")
-
     st.markdown("""
-### Your Intelligent Healthcare Companion
-
-Describe your symptoms, and I'll ask follow-up questions to better understand your condition and provide **educational health guidance**.
-
-> ⚠️ **Disclaimer:** This chatbot does **not** diagnose diseases or replace professional medical advice.
-""")
+    <div class="hero">
+        <div class="hero-icon">🩺</div>
+        <div>
+            <h1>AI Healthcare Assistant</h1>
+            <p>Your intelligent symptom checker powered by AI</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
